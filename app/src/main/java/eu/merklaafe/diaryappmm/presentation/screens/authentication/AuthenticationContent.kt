@@ -1,4 +1,4 @@
-package eu.merklaafe.diaryappmm.presentation.screens
+package eu.merklaafe.diaryappmm.presentation.screens.authentication
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
