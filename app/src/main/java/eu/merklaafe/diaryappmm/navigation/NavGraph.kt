@@ -1,5 +1,8 @@
 package eu.merklaafe.diaryappmm.navigation
 
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -18,11 +21,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
+import eu.merklaafe.diaryappmm.model.Mood
 import eu.merklaafe.diaryappmm.presentation.components.DisplayAlertDialog
 import eu.merklaafe.diaryappmm.presentation.screens.authentication.AuthenticationScreen
 import eu.merklaafe.diaryappmm.presentation.screens.authentication.AuthenticationScreenViewModel
 import eu.merklaafe.diaryappmm.presentation.screens.home.HomeScreen
 import eu.merklaafe.diaryappmm.presentation.screens.home.HomeScreenViewModel
+import eu.merklaafe.diaryappmm.presentation.screens.write.WriteScreen
+import eu.merklaafe.diaryappmm.presentation.screens.write.WriteViewModel
 import eu.merklaafe.diaryappmm.util.Constants.APP_ID
 import eu.merklaafe.diaryappmm.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import eu.merklaafe.diaryappmm.util.RequestState
@@ -52,13 +58,20 @@ fun SetupNavGraph(
             navigateToWrite = {
                 navController.navigate(Screen.Write.route)
             },
+            navigateToWriteWithArgs = {
+                navController.navigate(Screen.Write.passDiaryId(diaryId = it))
+            },
             navigateToAuthentication = {
                 navController.popBackStack()
                 navController.navigate(Screen.Authentication.route)
             },
             onDataLoaded = onDataLoaded
         )
-        writeRoute()
+        writeRoute(
+            onBackPressed = {
+                navController.popBackStack()
+            }
+        )
     }
 }
 
@@ -112,6 +125,7 @@ fun NavGraphBuilder.authenticationRoute(
 
 fun NavGraphBuilder.homeRoute(
     navigateToWrite: () -> Unit,
+    navigateToWriteWithArgs: (String) -> Unit,
     navigateToAuthentication: () -> Unit,
     onDataLoaded: () -> Unit
 ) {
@@ -139,7 +153,8 @@ fun NavGraphBuilder.homeRoute(
             onSignOutClicked = {
                 signOutDialogOpened = true
             },
-            navigateToWrite = navigateToWrite
+            navigateToWrite = navigateToWrite,
+            navigateToWriteWithArgs = navigateToWriteWithArgs
         )
         DisplayAlertDialog(
             title = "Sign Out",
@@ -163,7 +178,10 @@ fun NavGraphBuilder.homeRoute(
     }
 }
 
-fun NavGraphBuilder.writeRoute() {
+@OptIn(ExperimentalFoundationApi::class)
+fun NavGraphBuilder.writeRoute(
+    onBackPressed: () -> Unit
+) {
     composable(
         route = Screen.Write.route,
         arguments = listOf(navArgument(name = WRITE_SCREEN_ARGUMENT_KEY) {
@@ -172,6 +190,24 @@ fun NavGraphBuilder.writeRoute() {
             defaultValue = null
         })
     ) {
+        val viewModel: WriteViewModel = viewModel()
+        val uiState = viewModel.uiState
+        val pagerState = rememberPagerState{ Mood.entries.size }
 
+        LaunchedEffect(
+            key1 = uiState,
+            block = {
+                Log.d("SelectedDiary", "${uiState.selectedDiaryId}")
+            }
+        )
+
+        WriteScreen(
+            selectedDiary = null,
+            pagerState = pagerState,
+            onDeleteConfirmed = {},
+            onBackPressed = onBackPressed
+        ) {
+            
+        }
     }
 }
