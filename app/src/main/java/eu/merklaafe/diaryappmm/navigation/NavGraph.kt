@@ -7,6 +7,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +19,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.navArgument
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
@@ -193,6 +195,7 @@ fun NavGraphBuilder.writeRoute(
         val viewModel: WriteViewModel = viewModel()
         val uiState = viewModel.uiState
         val pagerState = rememberPagerState{ Mood.entries.size }
+        val pageNumber by remember { derivedStateOf { pagerState.currentPage } }
 
         LaunchedEffect(
             key1 = uiState,
@@ -202,12 +205,23 @@ fun NavGraphBuilder.writeRoute(
         )
 
         WriteScreen(
-            selectedDiary = null,
+            uiState = uiState,
+            moodName = {Mood.entries[pagerState.currentPage].name},
             pagerState = pagerState,
+            onTitleChanged = { viewModel.setTitle(title = it) },
+            onDescriptionChanged = { viewModel.setDescription(description = it) },
             onDeleteConfirmed = {},
-            onBackPressed = onBackPressed
-        ) {
-            
-        }
+            onDateTimeUpdated = { viewModel.updateDateTime(zonedDateTime = it) },
+            onBackPressed = onBackPressed,
+            onSaveClicked = {
+                viewModel.upsertDiary(
+                    diary = it.apply { mood = Mood.entries[pagerState.currentPage].name },
+                    onSuccess = { onBackPressed() },
+                    onError = {msg ->
+                        throw Exception(msg)
+                    }
+                )
+            }
+        )
     }
 }

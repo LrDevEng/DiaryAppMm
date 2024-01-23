@@ -13,6 +13,7 @@ import io.realm.kotlin.query.Sort
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import org.mongodb.kbson.ObjectId
 import java.time.ZoneId
 
 object MongoDb: MongoRepository {
@@ -63,6 +64,54 @@ object MongoDb: MongoRepository {
             flow {
                 emit(RequestState.Error(UserNotAuthenticatedException()))
             }
+        }
+    }
+
+    override fun getSelectedDiary(diaryId: ObjectId): Flow<RequestState<Diary>> {
+        return if(user != null) {
+            try {
+                val diary = realm.query<Diary>(query = "_id == $0", diaryId).find().first()
+                flow{ emit(RequestState.Success(data = diary)) }
+            } catch (e: Exception) {
+                flow{ emit(RequestState.Error(e)) }
+            }
+        } else {
+            flow{ emit(RequestState.Error(UserNotAuthenticatedException())) }
+        }
+    }
+
+    override suspend fun insertDiary(diary: Diary): RequestState<Diary> {
+        return if(user != null) {
+            realm.write {
+                try {
+                    val addedDiary = copyToRealm(diary.apply { ownerId = user.id })
+                    RequestState.Success(data = addedDiary)
+                } catch (e: Exception) {
+                    RequestState.Error(e)
+                }
+            }
+        } else {
+            RequestState.Error(UserNotAuthenticatedException())
+        }
+    }
+
+    override suspend fun updateDiary(diary: Diary): RequestState<Diary> {
+        return if(user != null) {
+            realm.write {
+                val queriedDiary = query<Diary>(query = "_id == $0", diary._id).find().first()
+                if(queriedDiary != null) {
+                    queriedDiary.title = diary.title
+                    queriedDiary.description = diary.description
+                    queriedDiary.mood = diary.mood
+                    queriedDiary.images = diary.images
+                    queriedDiary.date = diary.date
+                    RequestState.Success(data = queriedDiary)
+                } else {
+                    RequestState.Error(error = Exception("Queried Diary does not exist."))
+                }
+            }
+        } else {
+            RequestState.Error(UserNotAuthenticatedException())
         }
     }
 }

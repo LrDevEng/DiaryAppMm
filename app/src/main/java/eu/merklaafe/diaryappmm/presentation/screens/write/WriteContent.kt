@@ -1,5 +1,6 @@
 package eu.merklaafe.diaryappmm.presentation.screens.write
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,19 +34,23 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import eu.merklaafe.diaryappmm.model.Diary
 import eu.merklaafe.diaryappmm.model.Mood
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun WriteContent(
+    uiState: UiState,
     paddingValues: PaddingValues,
     pagerState: PagerState,
     title: String,
     onTitleChanged: (String) -> Unit,
     description: String,
-    onDescriptionChanged: (String) -> Unit
+    onDescriptionChanged: (String) -> Unit,
+    onSaveClicked: (Diary) -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -134,7 +139,22 @@ fun WriteContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp),
-                onClick = {},
+                onClick = {
+                    if(uiState.title.isNotEmpty() && uiState.description.isNotEmpty()) {
+                        onSaveClicked(
+                            Diary().apply {
+                                this.title = uiState.title
+                                this.description = uiState.description
+                            }
+                        )
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Please fill in all field.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                },
                 shape = Shapes().small
             ) {
                 Text(text = "Save")
