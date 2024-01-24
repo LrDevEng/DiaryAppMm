@@ -1,6 +1,7 @@
 package eu.merklaafe.diaryappmm.navigation
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerValue
@@ -13,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -72,7 +74,8 @@ fun SetupNavGraph(
         writeRoute(
             onBackPressed = {
                 navController.popBackStack()
-            }
+            },
+            onDataLoaded = onDataLoaded
         )
     }
 }
@@ -182,7 +185,8 @@ fun NavGraphBuilder.homeRoute(
 
 @OptIn(ExperimentalFoundationApi::class)
 fun NavGraphBuilder.writeRoute(
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onDataLoaded: () -> Unit
 ) {
     composable(
         route = Screen.Write.route,
@@ -195,6 +199,7 @@ fun NavGraphBuilder.writeRoute(
         val viewModel: WriteViewModel = viewModel()
         val uiState = viewModel.uiState
         val pagerState = rememberPagerState{ Mood.entries.size }
+        val context = LocalContext.current
         val pageNumber by remember { derivedStateOf { pagerState.currentPage } }
 
         LaunchedEffect(
@@ -208,9 +213,25 @@ fun NavGraphBuilder.writeRoute(
             uiState = uiState,
             moodName = {Mood.entries[pagerState.currentPage].name},
             pagerState = pagerState,
+            onDataLoaded = onDataLoaded,
             onTitleChanged = { viewModel.setTitle(title = it) },
             onDescriptionChanged = { viewModel.setDescription(description = it) },
-            onDeleteConfirmed = {},
+            onDeleteConfirmed = {
+                viewModel.deleteDiary(
+                    diary = it,
+                    onSuccess = {
+                        Toast.makeText(
+                            context,
+                            "Deleted diary: ${it.title}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        onBackPressed()
+                    },
+                    onError = {msg ->
+                        throw Exception(msg)
+                    }
+                )
+            },
             onDateTimeUpdated = { viewModel.updateDateTime(zonedDateTime = it) },
             onBackPressed = onBackPressed,
             onSaveClicked = {

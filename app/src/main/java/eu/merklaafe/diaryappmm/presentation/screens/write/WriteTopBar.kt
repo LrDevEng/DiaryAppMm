@@ -44,7 +44,7 @@ fun WriteTopBar(
     selectedDiary: Diary?,
     moodName: () -> String,
     onDateTimeUpdated: (ZonedDateTime) -> Unit,
-    onDeleteConfirmed: () -> Unit,
+    onDeleteConfirmed: (Diary) -> Unit,
     onBackPressed: () -> Unit
 ) {
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
@@ -135,7 +135,7 @@ fun WriteTopBar(
             if(selectedDiary != null) {
                 DeleteDiaryAction(
                     selectedDiary = selectedDiary,
-                    onDeleteConfirmed = onDeleteConfirmed
+                    onDeleteConfirmed = { onDeleteConfirmed(selectedDiary) }
                 )
             }
         }

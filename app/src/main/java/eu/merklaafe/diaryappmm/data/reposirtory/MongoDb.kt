@@ -5,6 +5,7 @@ import eu.merklaafe.diaryappmm.util.Constants.APP_ID
 import eu.merklaafe.diaryappmm.util.RequestState
 import eu.merklaafe.diaryappmm.util.toInstant
 import io.realm.kotlin.Realm
+import io.realm.kotlin.delete
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.log.LogLevel
 import io.realm.kotlin.mongodb.App
@@ -108,6 +109,23 @@ object MongoDb: MongoRepository {
                     RequestState.Success(data = queriedDiary)
                 } else {
                     RequestState.Error(error = Exception("Queried Diary does not exist."))
+                }
+            }
+        } else {
+            RequestState.Error(UserNotAuthenticatedException())
+        }
+    }
+
+    override suspend fun deleteDiary(diary: Diary): RequestState<Diary> {
+        return if(user != null) {
+            realm.writeBlocking {
+                try {
+                    val deletedDiary = realm.query<Diary>(query = "_id == $0 AND ownerId == $1", diary._id, user.id).find().first()
+                    val liveDiary = findLatest(deletedDiary) ?: throw Exception("Diary not found in database.")
+                    delete(liveDiary)
+                    RequestState.Success(data = deletedDiary)
+                } catch (e: Exception) {
+                    RequestState.Error(e)
                 }
             }
         } else {

@@ -46,7 +46,7 @@ class WriteViewModel(
             viewModelScope.launch {
                 MongoDb.getSelectedDiary(
                     diaryId = ObjectId.invoke(uiState.selectedDiaryId!!)
-                ).collect{ diary ->
+                ).collect { diary ->
                     if(diary is RequestState.Success) {
                         setSelectedDiary(diary = diary.data)
                         setTitle(title = diary.data.title)
@@ -141,6 +141,25 @@ class WriteViewModel(
         } else if(result is RequestState.Error) {
             withContext(Dispatchers.Main) {
                 onError(result.error.message.toString())
+            }
+        }
+    }
+
+    fun deleteDiary(
+        diary: Diary,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = MongoDb.deleteDiary(diary = diary)
+            if(result is RequestState.Success) {
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            } else if(result is RequestState.Error) {
+                withContext(Dispatchers.Main) {
+                    onError(result.error.message.toString())
+                }
             }
         }
     }

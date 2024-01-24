@@ -17,13 +17,18 @@ fun WriteScreen(
     uiState: UiState,
     moodName: () -> String,
     pagerState: PagerState,
+    onDataLoaded: () -> Unit,
     onTitleChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
-    onDeleteConfirmed: () -> Unit,
+    onDeleteConfirmed: (Diary) -> Unit,
     onDateTimeUpdated: (ZonedDateTime) -> Unit,
     onBackPressed: () -> Unit,
     onSaveClicked: (Diary) -> Unit
 ) {
+    LaunchedEffect(key1 = Unit) {
+        onDataLoaded()
+    }
+
     LaunchedEffect(key1 = uiState.mood) {
         pagerState.scrollToPage(Mood.valueOf(uiState.mood.name).ordinal)
     }
