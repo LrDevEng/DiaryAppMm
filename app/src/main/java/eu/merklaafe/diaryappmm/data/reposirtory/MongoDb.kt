@@ -2,10 +2,9 @@ package eu.merklaafe.diaryappmm.data.reposirtory
 
 import eu.merklaafe.diaryappmm.model.Diary
 import eu.merklaafe.diaryappmm.util.Constants.APP_ID
-import eu.merklaafe.diaryappmm.util.RequestState
+import eu.merklaafe.diaryappmm.model.RequestState
 import eu.merklaafe.diaryappmm.util.toInstant
 import io.realm.kotlin.Realm
-import io.realm.kotlin.delete
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.log.LogLevel
 import io.realm.kotlin.mongodb.App

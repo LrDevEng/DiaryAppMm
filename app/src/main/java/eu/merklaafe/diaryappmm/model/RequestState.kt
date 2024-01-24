@@ -1,4 +1,4 @@
-package eu.merklaafe.diaryappmm.util
+package eu.merklaafe.diaryappmm.model
 
 sealed class RequestState<out T> {
     object Idle : RequestState<Nothing>()

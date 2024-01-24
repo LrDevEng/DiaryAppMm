@@ -1,7 +1,7 @@
 package eu.merklaafe.diaryappmm.data.reposirtory
 
 import eu.merklaafe.diaryappmm.model.Diary
-import eu.merklaafe.diaryappmm.util.RequestState
+import eu.merklaafe.diaryappmm.model.RequestState
 import kotlinx.coroutines.flow.Flow
 import org.mongodb.kbson.ObjectId
 import java.time.LocalDate

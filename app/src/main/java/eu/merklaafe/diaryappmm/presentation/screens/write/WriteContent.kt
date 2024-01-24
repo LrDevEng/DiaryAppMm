@@ -1,5 +1,6 @@
 package eu.merklaafe.diaryappmm.presentation.screens.write
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -41,7 +42,10 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import eu.merklaafe.diaryappmm.model.Diary
+import eu.merklaafe.diaryappmm.model.GalleryState
 import eu.merklaafe.diaryappmm.model.Mood
+import eu.merklaafe.diaryappmm.presentation.components.GalleryUploader
+import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -53,8 +57,10 @@ fun WriteContent(
     title: String,
     onTitleChanged: (String) -> Unit,
     description: String,
+    galleryState: GalleryState,
     onDescriptionChanged: (String) -> Unit,
-    onSaveClicked: (Diary) -> Unit
+    onSaveClicked: (Diary) -> Unit,
+    onImageSelect: (Uri) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
@@ -156,7 +162,14 @@ fun WriteContent(
         Column(
             verticalArrangement = Arrangement.Bottom
         ) {
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            GalleryUploader(
+                galleryState = galleryState,
+                onAddClicked = { focusManager.clearFocus() },
+                onImageSelect = onImageSelect,
+                onImageClicked = {}
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -167,6 +180,7 @@ fun WriteContent(
                             Diary().apply {
                                 this.title = uiState.title
                                 this.description = uiState.description
+                                this.images = galleryState.images.map { it.remoteImagePath }.toRealmList()
                             }
                         )
                     } else {
