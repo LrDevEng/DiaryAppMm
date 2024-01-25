@@ -9,7 +9,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.lifecycle.HiltViewModel
+import eu.merklaafe.diaryappmm.data.database.ImageToUploadDao
+import eu.merklaafe.diaryappmm.data.database.entity.ImageToUpload
 import eu.merklaafe.diaryappmm.data.reposirtory.MongoDb
 import eu.merklaafe.diaryappmm.model.Diary
 import eu.merklaafe.diaryappmm.model.GalleryImage
@@ -17,6 +22,7 @@ import eu.merklaafe.diaryappmm.model.GalleryState
 import eu.merklaafe.diaryappmm.model.Mood
 import eu.merklaafe.diaryappmm.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import eu.merklaafe.diaryappmm.model.RequestState
+import eu.merklaafe.diaryappmm.util.fetchImagesFromFirebase
 import eu.merklaafe.diaryappmm.util.toRealmInstant
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.Dispatchers
@@ -24,9 +30,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mongodb.kbson.ObjectId
 import java.time.ZonedDateTime
+import javax.inject.Inject
 
-class WriteViewModel(
-    private val savedStateHandle: SavedStateHandle
+@HiltViewModel
+class WriteViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val imageToUploadDao: ImageToUploadDao,
 ): ViewModel() {
     val galleryState = GalleryState()
 
@@ -57,6 +66,20 @@ class WriteViewModel(
                         setTitle(title = diary.data.title)
                         setDescription(description = diary.data.description)
                         setMood(mood = Mood.valueOf(diary.data.mood))
+
+                        fetchImagesFromFirebase(
+                            remoteImagePaths = diary.data.images,
+                            onImageDownload = { downloadedImage ->
+                                galleryState.addImage(
+                                    GalleryImage(
+                                        image = downloadedImage,
+                                        remoteImagePath = extractImagePath(
+                                            fullImageUrl = downloadedImage.toString()
+                                        ),
+                                    )
+                                )
+                            }
+                        )
                     }
                 }
             }
@@ -161,6 +184,7 @@ class WriteViewModel(
             val result = MongoDb.deleteDiary(diary = diary)
             if(result is RequestState.Success) {
                 withContext(Dispatchers.Main) {
+                    uiState.selectedDiary?.let { deleteImagesFromFirebase(images = it.images) }
                     onSuccess()
                 }
             } else if(result is RequestState.Error) {
@@ -184,10 +208,44 @@ class WriteViewModel(
     }
 
     private fun uploadImagesToFirebase() {
+        var imageToUpload: ImageToUpload? = null
         val storage = FirebaseStorage.getInstance().reference
         galleryState.images.forEach { galleryImage ->
             val imagePath = storage.child(galleryImage.remoteImagePath)
             imagePath.putFile(galleryImage.image)
+                .addOnProgressListener {
+                    val sessionUri = it.uploadSessionUri?: ""
+                    imageToUpload = ImageToUpload(
+                        remoteImagePath = galleryImage.remoteImagePath,
+                        imageUri = galleryImage.image.toString(),
+                        sessionUri = sessionUri.toString()
+                    )
+                    viewModelScope.launch(Dispatchers.IO) {
+                        imageToUploadDao.addImageToUpload(imageToUpload!!)
+                    }
+                    Log.d("WriteViewModel","Image added to upload ${galleryImage.image}")
+                }
+                .addOnSuccessListener {
+                    if(imageToUpload != null) {
+                        viewModelScope.launch(Dispatchers.IO) {
+                            imageToUploadDao.cleanupImage(imageToUpload!!.id)
+                        }
+                        Log.d("WriteViewModel","Image removed from upload ${galleryImage.image}")
+                    }
+                }
+        }
+    }
+
+    private fun extractImagePath(fullImageUrl: String): String {
+        val chunks = fullImageUrl.split("%2F")
+        val imageName = chunks[2].split("?").first()
+        return "images/${Firebase.auth.currentUser?.uid}/$imageName"
+    }
+
+    private fun deleteImagesFromFirebase(images: List<String>) {
+        val storage = FirebaseStorage.getInstance().reference
+        images.forEach { remotePath ->
+            storage.child(remotePath).delete()
         }
     }
 

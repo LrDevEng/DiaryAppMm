@@ -1,6 +1,8 @@
 package eu.merklaafe.diaryappmm.presentation.components
 
+import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import eu.merklaafe.diaryappmm.MyApplication
 import eu.merklaafe.diaryappmm.model.GalleryImage
 import eu.merklaafe.diaryappmm.model.GalleryState
 import eu.merklaafe.diaryappmm.ui.theme.Elevation
@@ -43,7 +46,7 @@ import kotlin.math.max
 @Composable
 fun Gallery(
     modifier: Modifier = Modifier,
-    images: List<String>,
+    images: List<Uri>,
     imageSize: Dp = 40.dp,
     spaceBetween: Dp = 10.dp,
     imageShape: CornerBasedShape = Shapes().small
@@ -73,6 +76,7 @@ fun Gallery(
                         .data(image)
                         .crossfade(true)
                         .build(),
+                    contentScale = ContentScale.Crop,
                     contentDescription = "Gallery Image"
                 )
                 Spacer(modifier = Modifier.width(spaceBetween))
@@ -100,10 +104,15 @@ fun GalleryUploader(
     onImageSelect: (Uri) -> Unit,
     onImageClicked: (GalleryImage) -> Unit,
 ) {
+    val context = LocalContext.current
+    val contentResolver = context.contentResolver
+    val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
     val multiplePhotoPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 8),
+        contract = ActivityResultContracts.PickMultipleVisualMedia(8),
     ) { images ->
         images.forEach {
+            //Log.d("GalleryUploader", it.toString())
+            contentResolver.takePersistableUriPermission(it, takeFlags)
             onImageSelect(it)
         }
     }
