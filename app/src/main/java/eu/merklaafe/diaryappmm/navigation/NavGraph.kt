@@ -141,10 +141,12 @@ fun NavGraphBuilder.homeRoute(
     onDataLoaded: () -> Unit
 ) {
     composable(route = Screen.Home.route) {
-        val viewModel: HomeScreenViewModel = viewModel()
+        val viewModel: HomeScreenViewModel = hiltViewModel()
         val diaries by viewModel.diaries
+        val context = LocalContext.current
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         var signOutDialogOpened by remember{ mutableStateOf(false)}
+        var deleteAllDialogOpened by remember{ mutableStateOf(false)}
         val scope = rememberCoroutineScope()
 
         LaunchedEffect(key1 = diaries) {
@@ -164,8 +166,18 @@ fun NavGraphBuilder.homeRoute(
             onSignOutClicked = {
                 signOutDialogOpened = true
             },
+            onDeleteAllClicked = {
+                deleteAllDialogOpened = true
+            },
             navigateToWrite = navigateToWrite,
-            navigateToWriteWithArgs = navigateToWriteWithArgs
+            navigateToWriteWithArgs = navigateToWriteWithArgs,
+            dateIsSelected = viewModel.dateIsSelected,
+            onDateSelected = {
+                viewModel.getDiaries(zonedDateTime = it)
+            },
+            onDateReset = {
+                viewModel.getDiaries()
+            }
         )
         DisplayAlertDialog(
             title = "Sign Out",
@@ -184,6 +196,34 @@ fun NavGraphBuilder.homeRoute(
                         }
                     }
                 }
+            }
+        )
+        DisplayAlertDialog(
+            title = "Delete All Diaries",
+            message = "Are you sure you want to permanently delete all your diaries?",
+            dialogOpened = deleteAllDialogOpened,
+            onClosedDialog = {
+                deleteAllDialogOpened = false
+            },
+            onYesClicked = {
+                viewModel.deleteAllDiaries(
+                    onSuccess = {
+                        Toast.makeText(context,"All diaries deleted.",Toast.LENGTH_LONG).show()
+                        scope.launch {
+                            drawerState.close()
+                        }
+                    },
+                    onError = {
+                        Toast.makeText(
+                            context,
+                            it.message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                        scope.launch {
+                            drawerState.close()
+                        }
+                    }
+                )
             }
         )
     }
@@ -259,7 +299,7 @@ fun NavGraphBuilder.writeRoute(
                     imageType = type
                 )
             },
-            onImageDeleteClicked = {}
+            onImageDeleteClicked = { galleryState.removeImage(it) }
         )
     }
 }
