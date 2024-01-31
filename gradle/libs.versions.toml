@@ -1,0 +1,72 @@
+[versions]
+androidGradlePlugin = "8.2.2"
+kotlinPlugin = "1.9.22"
+daggerHiltPlugin = "2.50"
+googleServicesPlugin = "4.4.0"
+kspPlugin = "1.9.0-1.0.12"
+realmPlugin = "1.13.0"
+
+compose-bom = "2023.08.00"
+firebase-bom = "32.7.1"
+
+coilCompose = "2.3.0"
+coreSplashscreen = "1.0.1"
+desugar_jdk_libs = "2.0.4"
+hiltAndroid = "2.50"
+hiltNavigationCompose = "1.1.0"
+kotlinxCoroutinesCore = "1.7.3"
+librarySync = "1.11.0"
+messageBarCompose = "1.0.5"
+navigationCompose = "2.7.6"
+oneTapCompose = "1.0.7"
+activityCompose = "1.8.2"
+coreKtx = "1.12.0"
+lifecycleRuntimeKtx = "2.7.0"
+junit = "4.13.2"
+androidx-junit = "1.1.5"
+espressoCore = "3.5.1"
+roomRuntime = "2.6.1"
+
+[libraries]
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+library-sync = { module = "io.realm.kotlin:library-sync", version.ref = "librarySync" }
+messageBarCompose = { module = "com.github.stevdza-san:MessageBarCompose", version.ref = "messageBarCompose" }
+oneTapCompose = { module = "com.github.stevdza-san:OneTapCompose", version.ref = "oneTapCompose" }
+
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-ui-test-junit = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+
+google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
+google-firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
+google-firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinPlugin" }
+realm-kotlin = { id = "io.realm.kotlin", version.ref = "realmPlugin" }
+dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "daggerHiltPlugin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServicesPlugin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "kspPlugin" }
