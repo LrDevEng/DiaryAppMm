@@ -7,10 +7,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import eu.merklaafe.diaryappmm.connectivity.NetworkConnectivityObserver
-import eu.merklaafe.diaryappmm.data.database.ImagesDatabase
+import eu.merklaafe.diaryutil.connectivity.NetworkConnectivityObserver
 import javax.inject.Singleton
-import eu.merklaafe.diaryappmm.util.Constants.IMAGES_DATABASE
+import eu.merklaafe.diarymongo.database.ImagesDatabase
+import eu.merklaafe.diaryutil.Constants.IMAGES_DATABASE
 
 @Module
 @InstallIn(SingletonComponent::class)

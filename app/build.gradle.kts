@@ -9,14 +9,14 @@ plugins {
 
 android {
     namespace = "eu.merklaafe.diaryappmm"
-    compileSdk = 34
+    compileSdk = ProjectConfig.compileSdk
 
     defaultConfig {
-        applicationId = "eu.merklaafe.diaryappmm"
-        minSdk = 26
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        applicationId = ProjectConfig.applicationId
+        minSdk = ProjectConfig.minSdk
+        targetSdk = ProjectConfig.targetSdk
+        versionCode = ProjectConfig.versionCode
+        versionName = ProjectConfig.versionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -44,7 +44,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
+        kotlinCompilerExtensionVersion = ProjectConfig.kotlinCompilerExtensionVersion
     }
     packaging {
         resources {
@@ -56,70 +56,74 @@ android {
 dependencies {
 
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    // Compose Navigation
-    implementation(libs.androidx.navigation.compose)
+//    implementation(libs.androidx.lifecycle.runtime.ktx)
+//    implementation(libs.androidx.activity.compose)
+//    implementation(platform(libs.androidx.compose.bom))
+//    implementation(libs.androidx.compose.ui)
+//    implementation(libs.androidx.compose.ui.graphics)
+//    implementation(libs.androidx.compose.ui.tooling.preview)
+//    implementation(libs.androidx.compose.material3)
+//    testImplementation(libs.junit)
+//    androidTestImplementation(libs.androidx.junit)
+//    androidTestImplementation(libs.androidx.espresso.core)
+//    androidTestImplementation(platform(libs.androidx.compose.bom))
+//    androidTestImplementation(libs.androidx.compose.ui.test.junit)
+//    debugImplementation(libs.androidx.compose.ui.tooling)
+//    debugImplementation(libs.androidx.compose.ui.test.manifest)
+//
+//    // Compose Navigation
+//    implementation(libs.androidx.navigation.compose)
 
     // Firebase
     implementation(platform(libs.google.firebase.bom))
-    implementation(libs.google.firebase.auth.ktx)
-    implementation(libs.google.firebase.storage.ktx)
+    implementation(libs.bundles.firebase)
 
     // Room components
-    implementation(libs.androidx.room.runtime)
+    implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
 
-    // Runtime Compose
-    implementation(libs.androidx.lifecycle.runtime.compose)
+//
+//    // Runtime Compose
+//    implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Splash API
     implementation(libs.androidx.core.splashscreen)
 
     // Mongo DB Realm
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.library.sync)
+    implementation(libs.bundles.mongo.realm)
 
     // Dagger Hilt
-    implementation(libs.hilt.android)
+    implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
 
-    // Coil
-    implementation(libs.coil.compose)
-
-    // Pager - Accompanist [DEPRECATED]
-//    implementation "com.google.accompanist:accompanist-pager:0.27.0"
-
-//    // Date-Time Picker
-//    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.0.2")
+//    // Coil
+//    implementation(libs.coil.compose)
 //
-//    // CALENDAR
-//    implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2")
+//    // Pager - Accompanist [DEPRECATED]
+////    implementation "com.google.accompanist:accompanist-pager:0.27.0"
 //
-//    // CLOCK
-//    implementation("com.maxkeppeler.sheets-compose-dialogs:clock:1.0.2")
+////    // Date-Time Picker
+////    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.0.2")
+////
+////    // CALENDAR
+////    implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2")
+////
+////    // CLOCK
+////    implementation("com.maxkeppeler.sheets-compose-dialogs:clock:1.0.2")
+//
+//    // Message Bar Compose
+//    implementation(libs.messageBarCompose)
+//
+//    // One-Tap Compose
+//    implementation(libs.oneTapCompose)
+//
+//    // Desugar JDK
+//    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    // Message Bar Compose
-    implementation(libs.messageBarCompose)
-
-    // One-Tap Compose
-    implementation(libs.oneTapCompose)
-
-    // Desugar JDK
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    implementation(project(":core:diaryui"))
+    implementation(project(":core:diaryutil"))
+    implementation(project(":data:diarymongo"))
+    implementation(project(":feature:diaryauth"))
+    implementation(project(":feature:diaryhome"))
+    implementation(project(":feature:diarywrite"))
 }
